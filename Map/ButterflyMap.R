@@ -18,11 +18,18 @@ plot_usmap(regions = "counties") +
 
 
 # plot only western states of interest for butterfly ranges:
-map = plot_usmap(include = c("CA", "ID", "NV", "OR", "WA"), fill = c("#74c476", "#fed976", "#fb6a4a", "#fed976", "#fed976"), alpha = 0.7) +
+map = plot_usmap(include = c("CA", "ID", "NV", "OR", "WA"), fill = c("#74c476", "#fed976", "#fb6a4a", "#fed976", "#fed976")) +
   #labs(title = "Western US States") +
   theme_bw()
 map
 ggsave(map, file = "/Users/hannahaichelman/Dropbox/BU_Postdoc/ButterflyGenomes/Github/Butterfly_Mimicry/Map/RangeMap.pdf", width=4, height=5, units=c("in"), useDingbats=FALSE)
+
+# make version without any fill
+map = plot_usmap(include = c("CA", "ID", "NV", "OR", "WA")) +
+  #labs(title = "Western US States") +
+  theme_bw()
+map
+ggsave(map, file = "/Users/hannahaichelman/Dropbox/BU_Postdoc/ButterflyGenomes/Github/Butterfly_Mimicry/Map/RangeMap_blank.pdf", width=4, height=5, units=c("in"), useDingbats=FALSE)
 
 #### Topographic Map ####
 # more info here on how I found this code: https://github.com/milos-agathon/create-crisp-topographic-maps-with-r/
