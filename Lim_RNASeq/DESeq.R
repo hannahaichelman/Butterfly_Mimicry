@@ -19,6 +19,7 @@ head(counts)
 sample = colnames(counts)
 expDesign = data.frame(sample) 
 expDesign$wing_type = as.factor(c("fw","fw","fw","hw","hw","hw"))
+expDesign$individual = as.factor(c("1","2","3","1","2","3"))
 str(expDesign)
 
 
@@ -33,7 +34,7 @@ max(totalCounts)
 
 #### Differential Expression ####
 # DESeq for differential expression
-dds<-DESeqDataSetFromMatrix(countData=counts, colData=expDesign, design=~wing_type) #can only test for the main effects of treatment
+dds<-DESeqDataSetFromMatrix(countData=counts, colData=expDesign, design=~wing_type+individual) #can only test for the main effects of treatment
 dds = DESeq(dds)
 results = results(dds)
 summary(results)
@@ -52,19 +53,19 @@ res_wing <- results(dds, contrast=c("wing_type","fw","hw"))
 head(res_wing)
 
 #how many FDR < 10%?
-table(res_wing$padj<0.01)
-# 0.1=5
-# 0.05=4
-# 0.01=4
+table(res_wing$padj<0.05)
+# 0.1=38
+# 0.05=31
+# 0.01=13
 
 summary(res_wing)
 # out of 11249 with nonzero total read count
 # adjusted p-value < 0.1
-# LFC > 0 (up)       : 2, 0.018%
-# LFC < 0 (down)     : 3, 0.027%
-# outliers [1]       : 356, 3.2%
-# low counts [2]     : 0, 0%
-# (mean count < 0)
+# LFC > 0 (up)       : 10, 0.089%
+# LFC < 0 (down)     : 28, 0.25%
+# outliers [1]       : 0, 0%
+# low counts [2]     : 1086, 9.7%
+# (mean count < 1)
 
 
 # MA Plot
@@ -90,7 +91,7 @@ dim(rldpvals)
 # [1] 12093     8
 table(complete.cases(rldpvals))
 # FALSE  TRUE 
-# 1200 10893 
+# 1930 10163 
 
 # write.csv(rldpvals, "Lim_RNASeq/RLDandPVALS.csv", quote=F)
 
@@ -105,18 +106,18 @@ rldpvals_sig
 
 #### PCA ####
 # First create a PCA data frame and calculate the variance estimated by PC1 and PC2
-pcadata = DESeq2::plotPCA(rlogged, intgroup = c("wing_type"), returnData = TRUE)
+pcadata = DESeq2::plotPCA(rlogged, intgroup = c("wing_type","individual"), returnData = TRUE)
 percentVar = round(100 * attr(pcadata, "percentVar"))
 # PCA with prcomp
 pca = prcomp(t(assay(rlogged)), center = TRUE, scale. = FALSE)
 summary_pca = summary(pca)
 summary_pca
 
-percentVar <- pca$sdev^2/sum(pca$sdev^2)
+#percentVar <- pca$sdev^2/sum(pca$sdev^2)
 
 
 # Using adonis from lipcadata# Using adonis from library(vegan) we can see if there are any significant differences based on wing type
-adonis2(pca$x ~ wing_type, data = pcadata, method = 'eu')
+adonis2(pca$x ~ wing_type + individual, data = pcadata, method = 'eu')
 #          Df SumOfSqs      R2      F Pr(>F)
 # Model     1    750.6 0.02624 0.1078    0.7
 # Residual  4  27858.1 0.97376              
@@ -125,12 +126,15 @@ adonis2(pca$x ~ wing_type, data = pcadata, method = 'eu')
 # Plot PCA
 cols_wing = c("hw" = "#636363", "fw" = "#fd8d3c")
 
-pca_12 = DESeq2::plotPCA(rlogged, returnData = TRUE, intgroup = c("wing_type")) %>% 
+# Plot PC1 and PC2
+pca_12 = DESeq2::plotPCA(rlogged, returnData = TRUE, intgroup = c("wing_type","individual")) %>% 
   ggplot(aes(x = PC1, y = PC2)) +
-  geom_point(aes(colour = wing_type), size = 3, shape = 21, stroke = 1) +
+  geom_point(aes(colour = wing_type, shape = individual), size = 3, stroke = 1) +
   scale_colour_manual(values = cols_wing,
                       name = "Wing Type") +
-  stat_ellipse(aes(color=rlogged$wing_type), type = "t", linetype = 2, lwd = 1) +
+  scale_shape_manual(values = c(21, 22, 23),
+                     name = "Individual") +
+  #stat_ellipse(aes(color=rlogged$wing_type), type = "t", linetype = 2, lwd = 1) +
   xlab(paste0("PC1: ",percentVar[1],"% variance")) +
   ylab(paste0("PC2: ",percentVar[2],"% variance")) +
   #labs(title = "~ treatment, p<0.001")+
@@ -138,13 +142,15 @@ pca_12 = DESeq2::plotPCA(rlogged, returnData = TRUE, intgroup = c("wing_type")) 
 pca_12
 ggsave(pca_12, file = "Lim_RNASeq/pca_12.pdf", width=5, height=4, units=c("in"), useDingbats=FALSE)
 
-
-pca_13 = DESeq2::plotPCA(rlogged, returnData = TRUE, intgroup = c("wing_type"), pcs = c(1,3)) %>% 
+# Plot PC1 and PC3 (separates wing types better)
+pca_13 = DESeq2::plotPCA(rlogged, returnData = TRUE, intgroup = c("wing_type","individual"), pcs = c(1,3)) %>% 
   ggplot(aes(x = PC1, y = PC3)) +
-  geom_point(aes(colour = wing_type), size = 3, shape = 21, stroke = 1) +
+  geom_point(aes(colour = wing_type, shape = individual), size = 3, stroke = 1) +
   scale_colour_manual(values = cols_wing,
                       name = "Wing Type") +
-  stat_ellipse(aes(color=rlogged$wing_type), type = "t", linetype = 2, lwd = 1) +
+  scale_shape_manual(values = c(21, 22, 23),
+                     name = "Individual") +
+  #stat_ellipse(aes(color=rlogged$wing_type), type = "t", linetype = 2, lwd = 1) +
   xlab(paste0("PC1: ",percentVar[1],"% variance")) +
   ylab(paste0("PC3: ",percentVar[3],"% variance")) +
   #labs(title = "~ treatment, p<0.001")+
