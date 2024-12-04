@@ -34,7 +34,7 @@ max(totalCounts)
 
 #### Differential Expression ####
 # DESeq for differential expression
-dds<-DESeqDataSetFromMatrix(countData=counts, colData=expDesign, design=~wing_type+individual) #can only test for the main effects of treatment
+dds<-DESeqDataSetFromMatrix(countData=counts, colData=expDesign, design=~wing_type+individual) 
 dds = DESeq(dds)
 results = results(dds)
 summary(results)
@@ -53,7 +53,7 @@ res_wing <- results(dds, contrast=c("wing_type","fw","hw"))
 head(res_wing)
 
 #how many FDR < 10%?
-table(res_wing$padj<0.05)
+table(res_wing$padj<0.1)
 # 0.1=38
 # 0.05=31
 # 0.01=13
@@ -103,25 +103,47 @@ rldpvals_sig = rldpvals %>%
   filter(padj.fw < 0.1)
 rldpvals_sig
 
+# compare with gff3 file I provided to Cornell to see where the genes are
+
+sig.genes = rldpvals_sig %>%
+  select(X) %>%
+  rename(sig_gene_name = X)
+sig.genes
+
+gff3 = read.csv("Lim_RNASeq/eggnog_result_decorate_liftoff.emapper.decorated.gff", skip = 4, header = F, sep = "\t")
+View(gff3)
+
+sig_gene_names <- filter(gff3, grepl(paste(sig.genes$sig_gene_name, collapse='|'), gff3$V9))
+write.csv(sig_gene_names, "Lim_RNASeq/sig_degs_gene_names.csv")
 
 #### PCA ####
 # First create a PCA data frame and calculate the variance estimated by PC1 and PC2
 pcadata = DESeq2::plotPCA(rlogged, intgroup = c("wing_type","individual"), returnData = TRUE)
 percentVar = round(100 * attr(pcadata, "percentVar"))
-# PCA with prcomp
+
+# PCA with prcomp to calculate percent variance by hand
+ntop=500
+# calculate the variance for each gene
+rv <- rowVars(assay(rlogged))
+# select the ntop genes by variance
+select <- order(rv, decreasing=TRUE)[seq_len(min(ntop, length(rv)))]
+# perform a PCA on the data in assay(x) for the selected genes
+pca_500 <- prcomp(t(assay(rlogged)[select,]))
+# the contribution to the total variance for each component
+percentVar_prcomp <- (pca_500$sdev^2 / sum(pca_500$sdev^2 ))*100
+
+# or just do it for all genes instead of top 500
 pca = prcomp(t(assay(rlogged)), center = TRUE, scale. = FALSE)
 summary_pca = summary(pca)
 summary_pca
 
-#percentVar <- pca$sdev^2/sum(pca$sdev^2)
 
-
-# Using adonis from lipcadata# Using adonis from library(vegan) we can see if there are any significant differences based on wing type
-adonis2(pca$x ~ wing_type + individual, data = pcadata, method = 'eu')
-#          Df SumOfSqs      R2      F Pr(>F)
-# Model     1    750.6 0.02624 0.1078    0.7
-# Residual  4  27858.1 0.97376              
-# Total     5  28608.7 1.00000              
+# Using adonis2 from library(vegan) we can see if there are any significant differences based on wing type
+adonis2(formula = pca$x ~ wing_type + individual, data = pcadata, method = 'eu')
+#         Df SumOfSqs      R2      F  Pr(>F)  
+# Model     3    27496 0.96109 16.469 0.01667 *
+# Residual  2     1113 0.03891                 
+# Total     5    28609 1.00000                 
 
 # Plot PCA
 cols_wing = c("hw" = "#636363", "fw" = "#fd8d3c")
