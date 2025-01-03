@@ -68,7 +68,7 @@ do
 
 	samtools sort ${aligned_sorted_filtered_shifted}.bam -@ 16 -o ${aligned_sorted_filtered_shifted_sort}.bam
 
-	samtools index -M *_shifted_sort.bam
+	samtools index *_shifted_sort.bam
 
 	echo "converting to bw ${trim_sample}"
 	#convert bam to bigwig for easier visualization
