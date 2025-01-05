@@ -65,12 +65,13 @@ do
 	echo "shifting reads ${trim_sample}"
 	#shift reads 
 	alignmentSieve --numberOfProcessors max --ATACshift --bam ${aligned_sorted_filtered}.bam -o ${aligned_sorted_filtered_shifted}.bam
-
+	
 	samtools sort ${aligned_sorted_filtered_shifted}.bam -@ 16 -o ${aligned_sorted_filtered_shifted_sort}.bam
 
-	samtools index *_shifted_sort.bam
+	samtools index ${aligned_sorted_filtered_shifted_sort}.bam
 
 	echo "converting to bw ${trim_sample}"
 	#convert bam to bigwig for easier visualization
 	bamCoverage --numberOfProcessors 16 --binSize 10 --normalizeUsing RPKM --bam ${aligned_sorted_filtered_shifted_sort}.bam -o ${aligned_sorted_filtered_shifted_sort_bw}.bw
 done 
+

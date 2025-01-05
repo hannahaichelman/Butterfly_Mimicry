@@ -1,6 +1,10 @@
 # ATAC analysis README - adapted from Noah Brady
 
-Other good info about ATACseq pipelines found at this link: https://github.com/CebolaLab/ATAC-seq?tab=readme-ov-file#pre-alignment-qc
+Other good info about ATACseq pipelines found at these links:
+https://github.com/CebolaLab/ATAC-seq?tab=readme-ov-file#pre-alignment-qc
+https://ivanek.github.io/analysisOfGenomicsDataWithR/12_ATACSeq_html.html
+https://nbis-workshop-epigenomics.readthedocs.io/en/latest/content/tutorials/atacseq_tutorials.html
+https://nf-co.re/atacseq/2.1.2/
 
 ## Step 1: QC raw fasta files. 
 
@@ -18,7 +22,7 @@ Run the atac_ac_script.R as an interactive session on BU's scc: /projectnb/mulle
 
 ## Step 4: call peaks and pool peaks
 
-To run this step, need to create conda environment and install macs3
+To run this step, need to create conda environment and install macs3 and subread
 ```
 module load miniconda
 conda create --name atac
@@ -27,6 +31,6 @@ conda install -c bioconda macs3
 conda install bioconda::subread
 ```
 
-Then, run atac_call_peaks.qsub (wd: /projectnb/mullenl/hannah/limenitis_atacseq)
+Then, run atac_call_peaks.qsub, which uses the conda environment we just created (wd: /projectnb/mullenl/hannah/limenitis_atacseq)
 
 ## Step 5: quantify differential accessability 
