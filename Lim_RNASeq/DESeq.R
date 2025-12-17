@@ -409,18 +409,14 @@ head(res_age_fw)
 
 #how many FDR < 10%?
 table(res_age_fw$padj<0.01)
-# 0.1=1880
-# 0.05=1339
-# 0.01=720
 
 summary(res_age_fw)
-# out of 11933 with nonzero total read count
+# out of 82 with nonzero total read count
 # adjusted p-value < 0.1
-# LFC > 0 (up)       : 1044, 8.7%
-# LFC < 0 (down)     : 836, 7%
-# outliers [1]       : 254, 2.1%
-# low counts [2]     : 1850, 16%
-# (mean count < 2)
+# LFC > 0 (up)       : 14, 17%
+# LFC < 0 (down)     : 8, 9.8%
+# outliers [1]       : 1, 1.2%
+# low counts [2]     : 0, 0%
 
 # MA Plot
 DESeq2::plotMA(res_age_fw, main = "Forewing, Day 6 vs. Day 3")
@@ -432,18 +428,17 @@ head(res_age_hw)
 
 #how many FDR < 10%?
 table(res_age_hw$padj<0.1)
-# 0.1=1989
-# 0.05=1419
-# 0.01=797
+# 0.1=21
+
 
 summary(res_age_hw)
-# out of 11933 with nonzero total read count
+# out of 82 with nonzero total read count
 # adjusted p-value < 0.1
-# LFC > 0 (up)       : 1127, 9.4%
-# LFC < 0 (down)     : 862, 7.2%
-# outliers [1]       : 254, 2.1%
-# low counts [2]     : 1388, 12%
-# (mean count < 1)
+# LFC > 0 (up)       : 15, 18%
+# LFC < 0 (down)     : 6, 7.3%
+# outliers [1]       : 1, 1.2%
+# low counts [2]     : 0, 0%
+# (mean count < 0)
 
 # MA Plot
 DESeq2::plotMA(res_age_hw, main = "Hindwing, Day 6 vs. Day 3")
@@ -494,9 +489,6 @@ View(gff3)
 
 # Extract gene names from GFF file
 gene_mapping <- extract_gene_names_from_gff("Lim_RNASeq/eggnog_Hmel_result_decorate_liftoff.emapper.decorated.gff")
-
-
-# compare with gff3 file I provided to Cornell to see where the genes are
 
 
 #### PCA ####
