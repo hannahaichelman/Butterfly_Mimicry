@@ -1,0 +1,1 @@
+load("/Users/haichelm/Documents/BU/Butterfly_Mimicry/Lim_RNASeq/nextflow_output/salmon.merged.transcript_counts.rds")
