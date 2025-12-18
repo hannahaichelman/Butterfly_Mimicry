@@ -69,8 +69,8 @@ add_gene_names_to_results <- function(results_obj, gene_mapping) {
 #counts = read.table("Lim_RNASeq/6065D_rawCounts.txt", header = TRUE)
 
 # newest version of the raw counts file from Cornell sequencing, containing all 12 samples
-#counts = read.table("Lim_RNASeq/6065D-All-Samples_rawCounts.txt", header = TRUE)
-#head(counts)
+counts = read.table("Lim_RNASeq/6065D-All-Samples_rawCounts.txt", header = TRUE)
+head(counts)
 
 
 # based on the cornell differential expression sheet linked their id's back to the sample type
@@ -130,7 +130,7 @@ head(res_wing_d6)
 
 #how many FDR < 10%?
 table(res_wing_d6$padj<0.1)
-# 0.1=3
+# 0.1=81
 summary(res_wing_d6)
 
 
